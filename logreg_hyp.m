@@ -6,7 +6,6 @@
 % Hypothesis function used in logistic regression
 function h=logreg_hyp(theta,X)
 
-  ## Dummy random implementation
-  h=rand(rows(X),1); 
+  h = 1 ./ (1 + exp(-(X * theta)));
 
 endfunction

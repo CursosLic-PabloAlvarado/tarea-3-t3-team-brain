@@ -46,15 +46,15 @@ endfunction
 ## Initial configuration for the optimizer
 opt=optimizer("method","sgd",
               "minibatch",8,
-              "maxiter",500,
-              "alpha",0.002);
-              
-theta0=rand(columns(X),1)-0.5; ## Common starting point (column vector)          
+              "maxiter",5000,
+              "alpha",0.005);
+
+theta0=rand(columns(X),1)-0.5; ## Common starting point (column vector)
 
 px=bsxfun(@power,linspace(-0.5,1,100)',0:2);
 
 # test all optimization methods
-methods={"batch","sgd","momentum","rmsprop","adam"};
+methods={"batch","sgd","momentum"};
 for m=1:numel(methods)
   method=methods{m};
   printf("Probando método '%s'.\n",method);
@@ -64,13 +64,13 @@ for m=1:numel(methods)
     opt.configure("method",method); ## Just change the method
     [ts,errs]=opt.minimize(@linreg_loss,@linreg_gradloss,theta0,X,y);
     theta=ts{end};
-    
+
     figure(1);
     py=linreg_hyp(theta,px);
     plot(px(:,2),py,msg,"linewidth",2);
-    
+
     figure(2);
-    plot(errs,msg,"linewidth",2);  
+    plot(errs,msg,"linewidth",2);
   catch
     printf("\n### Error detectado probando método '%s': ###\n %s\n\n",
            method,lasterror.message);
@@ -80,4 +80,4 @@ endfor
 figure(2);
 xlabel("Iteration");
 ylabel("Loss");
-grid on;  
+grid on;

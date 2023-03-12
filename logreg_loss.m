@@ -5,6 +5,9 @@
 
 % Loss function used in logistic regression
 function err=logreg_loss(theta,X,y)
-  ## Dummy random implementation
-  err=rand();
+
+  m = length(y); % número de ejemplos de entrenamiento
+  h = 1 ./ (1 + exp(-(X * theta))); % calcular la hipótesis
+  J = (1 / (2 * m)) * sum((h - y) .^ 2); % calcular el error de MSE
+
 endfunction
