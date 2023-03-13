@@ -7,7 +7,7 @@
 function err=logreg_loss(theta,X,y)
 
   m = length(y); % número de ejemplos de entrenamiento
-  h = 1 ./ (1 + exp(-(X * theta'))); % calcular la hipótesis
+  h = y - (1 ./ (1 + exp(-(X * theta')))); % calcular la hipótesis
   err = (1 / (2 * m)) * sum((h - y) .^ 2); % calcular el error de MSE
 
 endfunction

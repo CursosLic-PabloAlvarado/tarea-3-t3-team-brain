@@ -49,7 +49,7 @@ endfunction
 ## Initial configuration for the optimizer
 opt=optimizer("method","sgd",
               "minibatch",8,
-              "maxiter",5000,
+              "maxiter",600,
               "alpha",0.005);
 
 theta0=rand(columns(X),1)-0.5; ## Common starting point (column vector)
@@ -71,7 +71,10 @@ for m=1:numel(methods)
       py=logreg_hyp(theta,px);
     endif
     if strcmp(method, "sgd")
-      [ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0,X,y);
+      idx = randperm(size(X, 1))(1:opt.minibatch);
+      X_batch = X(idx, :);
+      y_batch = y(idx, :);
+      [ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0,X_batch,y_batch);
       theta=ts{end};
       py=logreg_hyp(theta,px);
     endif
