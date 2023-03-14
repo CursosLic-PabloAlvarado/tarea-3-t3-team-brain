@@ -14,17 +14,8 @@ Y = Ytr(:,1);
 NX=normalizer("normal");
 NXtr=NX.fit_transform(Xtr);
 
-
-% Generate some artificial data:
-x = 1.5*rand(30,1)-0.5; ## random data between -0.5 and 1
-X = bsxfun(@power,x,0:2);
-y = x.^2 + 0.05*rand(30,1); ## add noise
-
-% Show the data
-figure(1,"name","optimizer testbench");
-
 % show the original data
-plot(X(:,2),y,'x');
+plot(NXtr(:,2),Y,'x');
 xlabel("x");
 ylabel("y");
 axis([-0.5,1,-0.1,1.1]);
@@ -78,7 +69,7 @@ for m=1:numel(methods)
       py=logreg_hyp(theta,px);
     endif
     if strcmp(method, "sgd")
-      idx = randperm(size(X, 1))(1:opt.minibatch);
+      idx = randperm(size(NXtr, 1))(1:opt.minibatch);
       X_batch = NXtr(idx, :);
       y_batch = Y(idx, :);
       [ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0,X_batch,y_batch);
