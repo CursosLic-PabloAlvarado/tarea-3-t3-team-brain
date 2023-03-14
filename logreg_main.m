@@ -22,7 +22,6 @@ axis([-0.5,1,-0.1,1.1]);
 grid on;
 hold on;
 
-
 figure(2,"name","Loss evolution");
 hold on;
 
