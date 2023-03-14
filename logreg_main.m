@@ -53,9 +53,9 @@ endfunction
 
 ## Initial configuration for the optimizer
 opt=optimizer("method","sgd",
-              "minibatch",8,
+              "minibatch",10,
               "maxiter",600,
-              "alpha",0.005);
+              "alpha",0.003);
 ###
 
 theta0=rand(columns(Xtr),1)-0.5; ## Common starting point (column vector)
@@ -72,20 +72,20 @@ for m=1:numel(methods)
   try
     opt.configure("method",method); ## Just change the method
     if strcmp(method, "batch")
-      [ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0,X,y);
+      [ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0,NXtr,Y);
       theta=ts{end};
       py=logreg_hyp(theta,px);
     endif
     if strcmp(method, "sgd")
       idx = randperm(size(X, 1))(1:opt.minibatch);
-      X_batch = X(idx, :);
-      y_batch = y(idx, :);
+      X_batch = NXtr(idx, :);
+      y_batch = Y(idx, :);
       [ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0,X_batch,y_batch);
       theta=ts{end};
       py=logreg_hyp(theta,px);
     endif
     if strcmp(method, "momentum")
-      [ts,errs]=opt.minimize(@linreg_loss,@linreg_gradloss,theta0,Xtr,Y);
+      [ts,errs]=opt.minimize(@linreg_loss,@linreg_gradloss,theta0,NXtr,Y);
       theta=ts{end};
       py=linreg_hyp(theta,px);
     endif
