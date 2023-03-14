@@ -11,6 +11,8 @@ clear all; close all;
 
 Xtr = [ones(length(Xtr),1) Xtr];
 Y = Ytr(:,1);
+NX=normalizer("normal");
+NXtr=NX.fit_transform(Xtr);
 
 % Generate some artificial data:
 x = 1.5*rand(30,1)-0.5; ## random data between -0.5 and 1
