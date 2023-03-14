@@ -9,6 +9,9 @@ clear all; close all;
 
 [Xtr,Ytr,Xte,Yte,names] = loadpenguindata("sex");
 
+Xtr = [ones(length(Xtr),1) Xtr];
+Y = Ytr(:,1);
+
 % Generate some artificial data:
 x = 1.5*rand(30,1)-0.5; ## random data between -0.5 and 1
 X = bsxfun(@power,x,0:2);
@@ -53,9 +56,9 @@ opt=optimizer("method","sgd",
               "alpha",0.005);
 ###
 
-theta0=rand(columns(X),1)-0.5; ## Common starting point (column vector)
+theta0=rand(columns(Xtr),1)-0.5; ## Common starting point (column vector)
 
-px=bsxfun(@power,linspace(-0.5,1,100)',0:2);
+px=bsxfun(@power,linspace(-0.5,1,100)',0:4);
 
 # test all optimization methods
 methods={"batch","sgd","momentum"};
@@ -80,7 +83,7 @@ for m=1:numel(methods)
       py=logreg_hyp(theta,px);
     endif
     if strcmp(method, "momentum")
-      [ts,errs]=opt.minimize(@linreg_loss,@linreg_gradloss,theta0,X,y);
+      [ts,errs]=opt.minimize(@linreg_loss,@linreg_gradloss,theta0,Xtr,Y);
       theta=ts{end};
       py=linreg_hyp(theta,px);
     endif
