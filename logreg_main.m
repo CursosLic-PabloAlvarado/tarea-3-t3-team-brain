@@ -95,5 +95,7 @@ endfor
 
 figure(2);
 xlabel("Iteration");
-ylabel("Loss");
+ylabel("Loss");0
 grid on;
+
+################################
