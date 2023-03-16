@@ -21,8 +21,6 @@ ylabel("y");
 axis([-0.5,1,-0.1,1.1]);
 grid on;
 hold on;
-
-
 figure(2,"name","Loss evolution");
 hold on;
 
@@ -63,12 +61,14 @@ for m=1:numel(methods)
 
   try
     opt.configure("method",method); ## Just change the method
-    if strcmp(method, "batch")
+
+    if strcmp(method, "batch")%%%%%%%BATCH
       [ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0,NXtr,Y);
       theta=ts{end};
       py=logreg_hyp(theta,px);
     endif
-    if strcmp(method, "sgd")
+
+    if strcmp(method, "sgd")%%%%%%%SGD
       idx = randperm(size(NXtr, 1))(1:opt.minibatch);
       X_batch = NXtr(idx, :);
       y_batch = Y(idx, :);
@@ -76,7 +76,8 @@ for m=1:numel(methods)
       theta=ts{end};
       py=logreg_hyp(theta,px);
     endif
-    if strcmp(method, "momentum")
+
+    if strcmp(method, "momentum")%%%%%%MOMENTUM
       [ts,errs]=opt.minimize(@linreg_loss,@linreg_gradloss,theta0,NXtr,Y);
       theta=ts{end};
       py=linreg_hyp(theta,px);
