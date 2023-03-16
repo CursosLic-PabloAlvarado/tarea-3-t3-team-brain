@@ -54,12 +54,12 @@ classdef optimizer < handle
     endfunction
     ## theta update with Batch
     function tn = updateBatch(self, tc, g)
-      tn = tc - self.alpha*self.v;
+      assert(size(g)==size(tc));
+      tn = tc - self.alpha*g;
     endfunction
     ## theta update with SGD
     function tn = updateSGD(self, tc, g)
-      self.v = self.beta1*self.v + (1-self.beta1)*g;
-      tn = tc - self.alpha*self.v;
+      tn = tc - self.alpha*g;
     endfunction
 
 

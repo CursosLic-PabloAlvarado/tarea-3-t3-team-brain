@@ -45,23 +45,24 @@ endfunction
 
 ## Initial configuration for the optimizer
 opt=optimizer("method","sgd",
-              "minibatch",10,
+              "minibatch",11,
               "maxiter",600,
-              "alpha",0.003);
+              "alpha",0.03);
 ###
 
-theta0=rand(columns(Xtr),1)-0.5; ## Common starting point (column vector)
+theta0=rand(columns(NXtr),1)-0.5; ## Common starting point (column vector)
 
 px=bsxfun(@power,linspace(-0.5,1,100)',0:4);
 
 # test all optimization methods
 methods={"batch","sgd","momentum"};
+##methods={"batch"};
 for m=1:numel(methods)
   method=methods{m};
   printf("Probando método '%s'.\n",method);
   msg=sprintf(";%s;",method); ## use method in legends
 
-  try
+  ##try
     opt.configure("method",method); ## Just change the method
     if strcmp(method, "batch")
       [ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0,NXtr,Y);
@@ -87,10 +88,10 @@ for m=1:numel(methods)
 
     figure(2);
     plot(errs,msg,"linewidth",2);
-  catch
-    printf("\n### Error detectado probando método '%s': ###\n %s\n\n",
-           method,lasterror.message);
-  end_try_catch
+  ##catch
+    ##printf("\n### Error detectado probando método '%s': ###\n %s\n\n",
+           ##method,lasterror.message);
+  ##end_try_catch
 endfor
 
 figure(2);
