@@ -68,6 +68,8 @@ for m=1:numel(methods)
       [ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0,NXtr,Y);
       theta=ts{end};
       py=logreg_hyp(theta,px);
+      [err1, num_errors1, percent_error1] = logreg_los(theta,NXtr,Y);
+      printf("errores de entrenamiento: %d de %d (%.2f%%)\n", num_errors1, length(Y), percent_error1);
     endif
     if strcmp(method, "sgd")
       idx = randperm(size(NXtr, 1))(1:opt.minibatch);
@@ -76,11 +78,15 @@ for m=1:numel(methods)
       [ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0,X_batch,y_batch);
       theta=ts{end};
       py=logreg_hyp(theta,px);
+      [err2, num_errors2, percent_error2] = logreg_los(theta,X_batch,y_batch);
+      printf("errores de entrenamiento: %d de %d (%.2f%%)\n", num_errors2, length(y_batch), percent_error2);
     endif
     if strcmp(method, "momentum")
       [ts,errs]=opt.minimize(@linreg_loss,@linreg_gradloss,theta0,NXtr,Y);
       theta=ts{end};
       py=linreg_hyp(theta,px);
+      [err3, num_errors3, percent_error3] = logreg_los(theta,NXtr,Y);
+      printf("errores de entrenamiento: %d de %d (%.2f%%)\n", num_errors3, length(Y), percent_error3);
     endif
 
     figure(1);
@@ -98,5 +104,6 @@ figure(2);
 xlabel("Iteration");
 ylabel("Loss");0
 grid on;
+
 
 ################################
