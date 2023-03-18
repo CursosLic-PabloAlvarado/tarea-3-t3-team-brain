@@ -7,6 +7,6 @@
 function grad=logreg_gradloss(theta,X,y)
   m = length(y); % número de ejemplos de entrenamiento
   h = 1 ./ (1 + exp(-(X * theta'))); % calcular la hipótesis
-  %grad = ((X' * (h - y))'/m); % calcular el gradiente de MSE
-  grad = (2/m)*(X'h - y);
+  grad = 2*((X' * (h - y))/m); % calcular el gradiente de MSE
+
 endfunction
