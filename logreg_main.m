@@ -45,12 +45,12 @@ endfunction
 
 ## Initial configuration for the optimizer
 opt=optimizer("method","sgd",
-              "minibatch",10,
+              "minibatch",11,
               "maxiter",600,
               "alpha",0.003);
 ###
 
-theta0=rand(columns(Xtr),1)-0.5; ## Common starting point (column vector)
+theta0=rand(columns(NXtr),1)-0.5; ## Common starting point (column vector)
 
 px=bsxfun(@power,linspace(-0.5,1,100)',0:4);
 

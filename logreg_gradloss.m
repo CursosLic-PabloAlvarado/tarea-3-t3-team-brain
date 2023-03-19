@@ -6,7 +6,7 @@
 % Loss function used in logistic regression
 function grad=logreg_gradloss(theta,X,y)
   m = length(y); % número de ejemplos de entrenamiento
-  h = 1 ./ (1 + exp(-(X * theta'))); % calcular la hipótesis
-  grad = 2*((X' * (h - y))/m); % calcular el gradiente de MSE
+  h = 1 ./ (1 + exp(-(X * theta(:)))); % calcular la hipótesis
+  grad = (2/m)*(X' * (h - y)); % calcular el gradiente de MSE
 
 endfunction
