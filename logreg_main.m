@@ -61,6 +61,9 @@ ylabel("Loss");
 grid on;
 feats=[2,5]
 
+for i=0
+
+
 x2=Xtr(:,feats);
 N2=normalizer("normal");
 nx2=N2.fit_transform(x2);
