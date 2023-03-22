@@ -54,7 +54,7 @@ theta0=rand(columns(X),1)-0.5; ## Common starting point (column vector)
 px=bsxfun(@power,linspace(-0.5,1,100)',0:2);
 
 # test all optimization methods
-methods={"batch","sgd","momentum"};
+methods={"sgd","momentum","batch"};
 for m=1:numel(methods)
   method=methods{m};
   printf("Probando método '%s'.\n",method);

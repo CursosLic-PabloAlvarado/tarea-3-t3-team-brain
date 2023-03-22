@@ -15,108 +15,75 @@ Y = Ytr(:,1);
 Yte = Yte(:,1);
 NX=normalizer("normal");
 NXtr=NX.fit_transform(Xtr);
-NXte=NX.fit_transform(Xte);
-
-
-% show the original data
-plot(NXtr(:,2),Y,'x');
-xlabel("x");
-ylabel("y");
-axis([-0.5,1,-0.1,1.1]);
-grid on;
-hold on;
-
-
-figure(2,"name","Loss evolution");
-hold on;
-
-function h=linreg_hyp(theta,X)
-  % theta must be a column vector
-  h=X*theta(:);
-endfunction
-
-function err=linreg_loss(theta,X,y)
-  ## residuals
-  r=y-linreg_hyp(theta,X);
-  err=0.5*(r'*r); # OLS
-endfunction
-
-function grad=linreg_gradloss(theta,X,y)
-  ## residuals
-  h=linreg_hyp(theta,X);
-  grad=sum((h-y).*X);
-endfunction
+NXte=NX.transform(Xte);
 
 ## Initial configuration for the optimizer
 opt=optimizer("method","sgd",
               "minibatch",11,
               "maxiter",600,
-              "alpha",0.03);
+              "alpha",0.04);
 ###
 
 theta0=rand(columns(NXtr),1)-0.5; ## Common starting point (column vector)
 
-px=bsxfun(@power,linspace(-0.5,1,100)',0:4);
-
 # test all optimization methods
-methods={"batch","sgd","momentum"};
+methods={"sgd","momentum","batch"};
 ##methods={"batch"};
 for m=1:numel(methods)
   method=methods{m};
   printf("Probando método '%s'.\n",method);
   msg=sprintf(";%s;",method); ## use method in legends
 
-  ##try
+  try
     opt.configure("method",method); ## Just change the method
-    if strcmp(method, "batch")
-      [ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0,NXtr,Y);
-      theta=ts{end};
-      py=logreg_hyp(theta,px);
-      [err1, num_errors1, percent_error1] = logreg_los(theta,NXtr,Y);
-      printf("errores de entrenamiento: %d de %d (%.2f%%)\n", num_errors1, length(Y), percent_error1);
-      [err11, num_errors11, percent_error11] = logreg_los(theta,NXte,Yte);
-      printf("errores de prueba: %d de %d (%.2f%%)\n", num_errors11, length(Yte), percent_error11);
-    endif
-    if strcmp(method, "sgd")
-      idx = randperm(size(NXtr, 1))(1:opt.minibatch);
-      idx2 = randperm(size(NXte, 1))(1:opt.minibatch);
-      X_batch = NXtr(idx, :);
-      y_batch = Y(idx, :);
-      X2_batch = NXte(idx2, :);
-      y2_batch = Yte(idx2, :);
-      [ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0,X_batch,y_batch);
-      theta=ts{end};
-      py=logreg_hyp(theta,px);
-      [err2, num_errors2, percent_error2] = logreg_los(theta,X_batch,y_batch);
-      printf("errores de entrenamiento: %d de %d (%.2f%%)\n", num_errors2, length(y_batch), percent_error2);
-      [err22, num_errors22, percent_error22] = logreg_los(theta,X2_batch,y2_batch);
-      printf("errores de prueba: %d de %d (%.2f%%)\n", num_errors22, length(y2_batch), percent_error22);
-    endif
-    if strcmp(method, "momentum")
-      [ts,errs]=opt.minimize(@linreg_loss,@linreg_gradloss,theta0,NXtr,Y);
-      theta=ts{end};
-      py=linreg_hyp(theta,px);
-      [err3, num_errors3, percent_error3] = logreg_los(theta,NXtr,Y);
-      printf("errores de entrenamiento: %d de %d (%.2f%%)\n", num_errors3, length(Y), percent_error3);
-      [err33, num_errors33, percent_error33] = logreg_los(theta,NXte,Yte);
-      printf("errores de prueba: %d de %d (%.2f%%)\n", num_errors33, length(Yte), percent_error33);
-    endif
+    [ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0,NXtr,Y);
+    theta=ts{end}
+    py=logreg_hyp(theta,NXte);
+    err=sum((py>0.5)!=Yte);
+    tot=100*(err/rows(Yte));
+    ##[err1, num_errors1, percent_error1] = logreg_los(theta,NXtr,Y);
+    ##printf("errores de entrenamiento: %d de %d (%.2f%%)\n", num_errors1, length(Y), percent_error1);
+    ##[err11, num_errors11, percent_error11] = logreg_los(theta,NXte,Yte);
+    printf("errores de prueba: %d de %d (%.2f%%)\n", err, length(Yte), tot);
+
 
     figure(1);
-    plot(px(:,2),py,msg,"linewidth",2);
-
-    figure(2);
     plot(errs,msg,"linewidth",2);
-  ##catch
-    ##printf("\n### Error detectado probando método '%s': ###\n %s\n\n",
-           ##method,lasterror.message);
-  ##end_try_catch
+    hold on;
+  catch
+    printf("\n### Error detectado probando método '%s': ###\n %s\n\n",
+           method,lasterror.message);
+  end_try_catch
 endfor
 
-figure(2);
 xlabel("Iteration");
-ylabel("Loss");0
+ylabel("Loss");
 grid on;
+feats=[2,5]
 
+x2=Xtr(:,feats);
+N2=normalizer("normal");
+nx2=N2.fit_transform(x2);
+
+opt.configure("method","batch"); ## Just change the method
+[ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0(feats),nx2,Y);
+theta=ts{end};
+
+mins=min(x2);
+maxs=max(x2);
+
+e1=linspace(mins(1),maxs(1),50);
+e2=linspace(mins(2),maxs(2),50);
+
+[ee1,ee2]=meshgrid(e1,e2);
+x2test=N2.transform([ee1(:) ee2(:)]);
+
+ytest=logreg_hyp(theta,x2test);
+
+figure(2,"name","Probabilidad")
+surf(ee1,ee2,reshape(ytest,size(ee1)));
+hold on;
+
+contour3(ee1,ee2,reshape(ytest,size(ee1)),[0.25,0.5,0.75],"linewidth",3,"linecolor","black");
 
 ################################

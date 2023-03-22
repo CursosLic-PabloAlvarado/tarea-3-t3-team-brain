@@ -263,7 +263,7 @@ classdef optimizer < handle
           sampler=samplerMB;
           updater=@(tc,g) self.updateMomentum(tc,g);
         case "batch"
-          sampler=samplerMB;
+          sampler=samplerB;
           updater=@(tc,g) self.updateBatch(tc,g);
         case "sgd"
           sampler=samplerMB;
