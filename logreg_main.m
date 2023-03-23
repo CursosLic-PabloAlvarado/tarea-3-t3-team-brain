@@ -21,7 +21,7 @@ NXte=NX.transform(Xte);
 opt=optimizer("method","sgd",
               "minibatch",11,
               "maxiter",600,
-              "alpha",0.04);
+              "alpha",0.05);
 ###
 
 theta0=rand(columns(NXtr),1)-0.5; ## Common starting point (column vector)
@@ -62,6 +62,8 @@ endfor
 xlabel("Iteration");
 ylabel("Loss");
 grid on;
+
+##################################################################################
 comp=100;
 columna1=0;
 columna2=0;
@@ -114,20 +116,37 @@ ytest=logreg_hyp(theta2,x2test);
 figure(2,"name","Probabilidad")
 surf(ee1,ee2,reshape(ytest,size(ee1)));
 hold on;
-
 contour3(ee1,ee2,reshape(ytest,size(ee1)),[0.25,0.5,0.75],"linewidth",3,"linecolor","black");
 
-################################
+##################################################################################
+
+## aqui grafica 3
+
+##################################################################################
 feats2=[2,columna1,columna2];
 x3=Xtr(:,feats2);
 N2=normalizer("normal");
 nx3=N2.fit_transform(x3);
 
-opt.configure("method","batch"); ## Just change the method
-[ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0(feats2),nx3,Y);
-theta3=ts{end};
+for m=1:numel(methods)
+  method=methods{m};
+  opt.configure("method",method); ## Just change the method
+  [ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0(feats2),nx3,Y);
+  theta3=ts{end};
 
-py3=logreg_hyp(theta3,nx3);
-err3=sum((py3>0.5)!=Y);
-tot3=100*(err3/rows(Y));
+  py3=logreg_hyp(theta3,nx3);
+  err3=sum((py3>0.5)!=Y);
+  tot3=100*(err3/rows(Y));
+
+  nts=cell2mat(ts);
+  nets=reshape(nts,3,601);
+  newts=nets';
+
+  figure(4,"name", "thetas");
+  hold on;
+  plot3(newts(:,1),newts(:,2),newts(:,3),"linewidth",2);
+
+endfor
+
+
 
