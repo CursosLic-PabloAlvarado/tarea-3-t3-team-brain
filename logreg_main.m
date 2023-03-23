@@ -59,18 +59,31 @@ endfor
 xlabel("Iteration");
 ylabel("Loss");
 grid on;
-feats=[2,5]
+comp=1;
+columna1=0;
+columna2=0;
 
 for i=1:4
   for j=i+1:5
 
+    feats=[i,j];
     x2=Xtr(:,feats);
     N2=normalizer("normal");
     nx2=N2.fit_transform(x2);
 
     opt.configure("method","batch"); ## Just change the method
     [ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0(feats),nx2,Y);
-    theta=ts{end};
+    theta2=ts{end};
+
+    py=logreg_hyp(theta2,NXte);
+    err=sum((py>0.5)!=Yte);
+    tot=100*(err/rows(Yte));
+
+    if tot<comp
+      comp=tot;
+      columna1=i;
+      columna2=j;
+    endif
 
     mins=min(x2);
     maxs=max(x2);
@@ -80,6 +93,8 @@ for i=1:4
   endfor
 
 endfor
+
+printf("el menor error obtenido es: %d al evaluar las columnas %d %d\n", comp, columna1, columna2);
 
 [ee1,ee2]=meshgrid(e1,e2);
 x2test=N2.transform([ee1(:) ee2(:)]);
