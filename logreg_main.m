@@ -61,22 +61,25 @@ ylabel("Loss");
 grid on;
 feats=[2,5]
 
-for i=0
+for i=1:4
+  for j=i+1:5
 
+    x2=Xtr(:,feats);
+    N2=normalizer("normal");
+    nx2=N2.fit_transform(x2);
 
-x2=Xtr(:,feats);
-N2=normalizer("normal");
-nx2=N2.fit_transform(x2);
+    opt.configure("method","batch"); ## Just change the method
+    [ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0(feats),nx2,Y);
+    theta=ts{end};
 
-opt.configure("method","batch"); ## Just change the method
-[ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0(feats),nx2,Y);
-theta=ts{end};
+    mins=min(x2);
+    maxs=max(x2);
 
-mins=min(x2);
-maxs=max(x2);
+    e1=linspace(mins(1),maxs(1),50);
+    e2=linspace(mins(2),maxs(2),50);
+  endfor
 
-e1=linspace(mins(1),maxs(1),50);
-e2=linspace(mins(2),maxs(2),50);
+endfor
 
 [ee1,ee2]=meshgrid(e1,e2);
 x2test=N2.transform([ee1(:) ee2(:)]);
