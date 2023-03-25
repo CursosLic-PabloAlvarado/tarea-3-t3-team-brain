@@ -6,9 +6,7 @@
 % Logistic regression testbench
 
 clear all; close all;
-
 [Xtr,Ytr,Xte,Yte,names] = loadpenguindata("sex");
-
 Xtr = [ones(length(Xtr),1) Xtr];
 Xte = [ones(length(Xte),1) Xte];
 Y = Ytr(:,1);
@@ -29,6 +27,9 @@ theta0=rand(columns(NXtr),1)-0.5; ## Common starting point (column vector)
 # test all optimization methods
 methods={"sgd","momentum","batch"};
 ##methods={"batch"};
+
+tts=zeros(numel(methods),601);
+es=zeros(1,67);
 for m=1:numel(methods)
   method=methods{m};
   printf("Probando método '%s'.\n",method);
@@ -42,6 +43,9 @@ for m=1:numel(methods)
     py=logreg_hyp(theta,NXte);
     err=sum((py>0.5)!=Yte);
     tot=100*(err/rows(Yte));
+    es(1,:)=py';
+
+
     printf("errores de prueba: %d de %d (%.2f%%)\n", err, length(Yte), tot);
 
     py=logreg_hyp(theta,NXtr);
@@ -53,12 +57,12 @@ for m=1:numel(methods)
     figure(1);
     plot(errs,msg,"linewidth",2);
     hold on;
+    tts(m,:)=errs;
   catch
     printf("\n### Error detectado probando método '%s': ###\n %s\n\n",
            method,lasterror.message);
   end_try_catch
 endfor
-
 xlabel("Iteration");
 ylabel("Loss");
 grid on;
@@ -114,7 +118,7 @@ ytest=logreg_hyp(theta2,x2test);
 figure(2,"name","Probabilidad")
 surf(ee1,ee2,reshape(ytest,size(ee1)));
 xlabel("culmen length [mm]");
-ylabel("Flipper length [mm]");
+ylabel("bodymass [g]");
 zlabel("p(Female|x");
 hold on;
 
@@ -122,8 +126,17 @@ contour3(ee1,ee2,reshape(ytest,size(ee1)),[0.25,0.5,0.75],"linewidth",3,"linecol
 
 
 figure(3,"name","Frontera de decisión y datos de prueba")
-plot(e1,e2,'x');
-hold on;
+
+for q=1:67
+  if es(1,q)>0.5
+  plot(Xte(q,4),Xte(q,5),'x','color','b');
+  hold on;
+  elseif
+  plot(Xte(q,4),Xte(q,5),'o','color','r');
+  hold on;
+  endif
+endfor
+legend('y=1','','','y=0')
 contour(ee1,ee2,reshape(ytest,size(ee1)),[0,0.5,1],"linewidth",3,"linecolor","black");
 xlabel("culmen length mm");
 ylabel("Flipper length mm");
@@ -141,4 +154,17 @@ theta3=ts{end};
 py3=logreg_hyp(theta3,nx3);
 err3=sum((py3>0.5)!=Y);
 tot3=100*(err3/rows(Y));
+
+figure(4,"name","Trayectoria de los parámetros durante el entrenamiento para tres métodos de optimización")
+
+surf(Xte(:,1),ee2,reshape(ytest,size(ee1)));%%%%batch
+%surf(theta0,theta2,theta3,"linewidth",3,"linecolor","black");
+hold on;
+surf(ee1,ee2,reshape(ytest,size(ee1)));%%%%sgd
+hold on;
+surf(ee1,ee2,reshape(ytest,size(ee1)));%%%%momentum
+hold on;
+xlabel('\theta_1');
+ylabel('\theta_2');
+zlabel('\theta_3');
 
