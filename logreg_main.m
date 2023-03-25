@@ -1,7 +1,7 @@
 % Copyright (C) 2022-2023 Pablo Alvarado
 % EL5857 Aprendizaje Automático
 % Tarea 3
-% (C) 2023 <Su Copyright AQUÍ>
+% (C) 2023 <Team brAIn>
 
 % Logistic regression testbench
 
@@ -113,9 +113,20 @@ ytest=logreg_hyp(theta2,x2test);
 
 figure(2,"name","Probabilidad")
 surf(ee1,ee2,reshape(ytest,size(ee1)));
+xlabel("culmen length [mm]");
+ylabel("Flipper length [mm]");
+zlabel("p(Female|x");
 hold on;
 
 contour3(ee1,ee2,reshape(ytest,size(ee1)),[0.25,0.5,0.75],"linewidth",3,"linecolor","black");
+
+
+figure(3,"name","Frontera de decisión y datos de prueba")
+plot(e1,e2,'x');
+hold on;
+contour(ee1,ee2,reshape(ytest,size(ee1)),[0,0.5,1],"linewidth",3,"linecolor","black");
+xlabel("culmen length mm");
+ylabel("Flipper length mm");
 
 ################################
 feats2=[2,columna1,columna2];
