@@ -1,7 +1,7 @@
 % Copyright (C) 2022-2023 Pablo Alvarado
 % EL5857 Aprendizaje Automático
 % Tarea 3
-% (C) 2023 <Su Copyright AQUÍ>
+% (C) 2023 <Team brAIn>
 
 % Loss function used in logistic regression
 function grad=logreg_gradloss(theta,X,y)

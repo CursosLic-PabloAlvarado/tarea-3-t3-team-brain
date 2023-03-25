@@ -28,8 +28,9 @@ theta0=rand(columns(NXtr),1)-0.5; ## Common starting point (column vector)
 methods={"sgd","momentum","batch"};
 ##methods={"batch"};
 
-tts=zeros(numel(methods),601);
-es=zeros(1,67);
+tts1=zeros(numel(methods),5); %para los thetas
+es=zeros(1,67);%para la grafica 2d
+
 for m=1:numel(methods)
   method=methods{m};
   printf("Probando método '%s'.\n",method);
@@ -39,6 +40,8 @@ for m=1:numel(methods)
     opt.configure("method",method); ## Just change the method
     [ts,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0,NXtr,Y);
     theta=ts{end}
+
+    tts1(m,:)=ts{end};
 
     py=logreg_hyp(theta,NXte);
     err=sum((py>0.5)!=Yte);
@@ -57,7 +60,6 @@ for m=1:numel(methods)
     figure(1);
     plot(errs,msg,"linewidth",2);
     hold on;
-    tts(m,:)=errs;
   catch
     printf("\n### Error detectado probando método '%s': ###\n %s\n\n",
            method,lasterror.message);
@@ -115,6 +117,8 @@ x2test=N2.transform([ee1(:) ee2(:)]);
 
 ytest=logreg_hyp(theta2,x2test);
 
+
+################################
 figure(2,"name","Probabilidad")
 surf(ee1,ee2,reshape(ytest,size(ee1)));
 xlabel("culmen length [mm]");
@@ -125,6 +129,8 @@ hold on;
 contour3(ee1,ee2,reshape(ytest,size(ee1)),[0.25,0.5,0.75],"linewidth",3,"linecolor","black");
 
 
+
+################################
 figure(3,"name","Frontera de decisión y datos de prueba")
 
 for q=1:67
@@ -155,15 +161,76 @@ py3=logreg_hyp(theta3,nx3);
 err3=sum((py3>0.5)!=Y);
 tot3=100*(err3/rows(Y));
 
+################################
+ttsb=zeros(30,3); %para los thetas
+ttss=zeros(30,3); %para los thetas
+ttsm=zeros(30,3); %para los thetas
+  v1=1;
+  v2=1;
+  v3=1;
+for i=1:3
+  for j=i+1:4
+    for k=j+1:5
+      for m=1:numel(methods)
+        method=methods{m};
+
+        featsq=[i,j,k];
+        x3=Xtr(:,featsq);
+        N3=normalizer("normal");
+        nx3=N3.fit_transform(x3);
+
+        opt.configure("method",method); ## Just change the method
+
+        if method="batch"
+        [ts3,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0(featsq),nx3,Y);
+        thets=ts3{end};
+          ttsb(v1,:)=ts3{end};
+          v1=v1+1;
+        endif
+        if method="sgd"
+        [ts3,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0(featsq),nx3,Y);
+        thets=ts3{end};
+          ttss(v2,:)=ts3{end};
+          v2=v2+1;
+        endif
+
+        if  method="momentum"
+        [ts3,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0(featsq),nx3,Y);
+        thets=ts3{end};
+          ttsm(v3,:)=ts3{end};
+          v3=v3+1;
+        endif
+
+        py3=logreg_hyp(thets,nx3);
+        err3=sum((py3>0.5)!=Y);
+        tot3=100*(err3/rows(Y));
+
+        if tot3<=comp
+          comp=tot3;
+          columna1=i;
+          columna2=j;
+        endif
+
+        mins=min(x3);
+        maxs=max(x3);
+
+        e1=linspace(mins(1),maxs(1),50);
+        e2=linspace(mins(2),maxs(2),50);
+
+        endfor
+      endfor
+  endfor
+endfor
 figure(4,"name","Trayectoria de los parámetros durante el entrenamiento para tres métodos de optimización")
 
-surf(Xte(:,1),ee2,reshape(ytest,size(ee1)));%%%%batch
-%surf(theta0,theta2,theta3,"linewidth",3,"linecolor","black");
+
+plot3(ttsb(1,:),ttsb(2,:),ttsb(3,:));%%%%batch
 hold on;
-surf(ee1,ee2,reshape(ytest,size(ee1)));%%%%sgd
+plot3(ttss(1,:),ttss(2,:),ttss(3,:));%%%%sgd
 hold on;
-surf(ee1,ee2,reshape(ytest,size(ee1)));%%%%momentum
+plot3(ttsm(1,:),ttsm(2,:),ttsm(3,:));%%%%momentum
 hold on;
+legend('Batch', 'SGD','Momentum');
 xlabel('\theta_1');
 ylabel('\theta_2');
 zlabel('\theta_3');
