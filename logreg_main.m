@@ -184,20 +184,20 @@ for i=1:3
 
         opt.configure("method",method); ## Just change the method
 
-        if method="batch"
+        if (method="batch")
         [ts3,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0(featsq),nx3,Y);
         thets=ts3{end};
           ttsb(v1,:)=ts3{end};
           v1=v1+1;
         endif
-        if method="sgd"
+        if (method="sgd")
         [ts3,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0(featsq),nx3,Y);
         thets=ts3{end};
           ttss(v2,:)=ts3{end};
           v2=v2+1;
         endif
 
-        if  method="momentum"
+        if  (method="momentum")
         [ts3,errs]=opt.minimize(@logreg_loss,@logreg_gradloss,theta0(featsq),nx3,Y);
         thets=ts3{end};
           ttsm(v3,:)=ts3{end};
@@ -224,7 +224,8 @@ for i=1:3
       endfor
   endfor
 endfor
-figure(4,"name","Trayectoria de los parámetros durante el entrenamiento para tres métodos de optimización")
+endfor
+figure(4,"name","Trayectoria de los parámetros durante el entrenamiento para tres métodos de optimización");
 
 
 plot3(ttsb(1,:),ttsb(2,:),ttsb(3,:));%%%%batch
@@ -237,4 +238,3 @@ legend('Batch', 'SGD','Momentum');
 xlabel('\theta_1');
 ylabel('\theta_2');
 zlabel('\theta_3');
-
