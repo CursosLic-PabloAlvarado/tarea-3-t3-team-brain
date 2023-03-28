@@ -170,6 +170,9 @@ for m=1:numel(methods)
   figure(4,"name","Trayectoria de los parámetros durante el entrenamiento para tres métodos de optimización");
   hold on;
   plot3(newts(:,1),newts(:,2),newts(:,3),"linewidth",2);
+  xlabel("θ_1");
+  ylabel("θ_2");
+  zlabel("θ_3");
 
 endfor
 
